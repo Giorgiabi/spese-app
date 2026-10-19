@@ -1,7 +1,7 @@
 import { db } from '../db.js';
 import { leggiExcel, pianificaImport } from '../importer.js';
 import { eur, esc, dataBreve, avviso } from '../util.js';
-import { fileRicordabile, salvaBackup } from '../backup.js';
+import { salvaBackup } from '../backup.js';
 
 export async function vistaImporta(el) {
   el.innerHTML = `
@@ -67,7 +67,7 @@ export async function vistaImporta(el) {
         <p class="ok">Fatto: ${nuovi} nuovi, ${aggiornati} aggiornati.</p>
         <p class="nota">Salva il backup per avere i dati aggiornati anche sull'altro dispositivo.</p>
         <div class="riga-form">
-          <button class="btn primario" id="salva-dopo">${fileRicordabile ? 'Salva su OneDrive' : 'Scarica backup'}</button>
+          <button class="btn primario" id="salva-dopo">Salva su Google Drive</button>
           <a class="btn" href="#/dashboard">Vai alla dashboard</a>
           <a class="btn" href="#/movimenti?filtro=daclassificare">Controlla i da classificare</a>
         </div>`;

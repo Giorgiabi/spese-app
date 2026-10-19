@@ -1,5 +1,5 @@
-// Backup su un file scelto dall'utente (es. nella cartella OneDrive), sovrascritto a ogni salvataggio.
-// Su PC (Chrome/Edge) il file viene ricordato; sul telefono si scarica e si sceglie a mano.
+// Backup su un file scelto dall'utente (es. nella cartella di Google Drive), sovrascritto a ogni salvataggio.
+// Su PC (Chrome/Edge) il file viene ricordato; sul telefono si apre "Condividi" (→ Salva su Drive).
 import { db } from './db.js';
 
 const NOME = 'spese-backup.json';
@@ -21,6 +21,18 @@ export async function infoBackup() {
 export async function salvaBackup({ sceltaNuova = false } = {}) {
   const testo = JSON.stringify(await db.esporta());
   if (!fileRicordabile) {
+    // Telefono: menu Condividi di Android, da cui si sceglie "Salva su Drive"
+    const file = new File([testo], NOME, { type: 'application/json' });
+    if (navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: 'Backup Spese mensili' });
+      } catch (err) {
+        if (err.name === 'AbortError') return null;
+        throw err;
+      }
+      await db.scrivi('ultimoBackup', new Date().toISOString());
+      return 'Google Drive';
+    }
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([testo], { type: 'application/json' }));
     a.download = NOME;

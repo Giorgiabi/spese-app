@@ -59,13 +59,13 @@ export async function vistaImpostazioni(el) {
       <h2>Backup e sincronizzazione</h2>
       <p class="nota">I dati sono salvati solo su questo dispositivo.
         ${fileRicordabile
-          ? 'La prima volta scegli dove salvare il file (es. nella cartella OneDrive): dalle volte successive viene sovrascritto lo stesso file.'
-          : 'Il backup viene scaricato: spostalo su OneDrive. Per caricare i dati del PC, scegli il file da OneDrive con "Carica backup".'}</p>
+          ? 'La prima volta scegli dove salvare il file (la cartella "Il mio Drive" di Google Drive): dalle volte successive viene sovrascritto lo stesso file.'
+          : 'Il backup si apre in "Condividi": scegli "Salva su Drive". Per caricare i dati del PC usa "Carica backup" e scegli il file da Google Drive.'}</p>
       <p class="nota" id="info-backup">${backup.quando
         ? `Ultimo salvataggio: ${new Date(backup.quando).toLocaleString('it-IT', { dateStyle: 'medium', timeStyle: 'short' })}${backup.nomeFile ? ` · file <b>${esc(backup.nomeFile)}</b>` : ''}`
         : 'Nessun backup salvato finora.'}</p>
       <div class="riga-form">
-        <button class="btn primario" id="salva-backup">${fileRicordabile ? 'Salva su OneDrive' : 'Scarica backup'}</button>
+        <button class="btn primario" id="salva-backup">Salva su Google Drive</button>
         ${fileRicordabile && backup.nomeFile ? '<button class="btn" id="carica-ricordato">Carica dal file salvato</button>' : ''}
         <label class="btn">Carica backup…<input type="file" id="ripristina" accept=".json,application/json" hidden /></label>
         ${fileRicordabile && backup.nomeFile ? '<button class="btn" id="cambia-file">Cambia file</button>' : ''}

@@ -4,7 +4,7 @@ Piccola app (PWA) per analizzare spese, entrate e investimenti a partire dagli e
 "Lista operazioni" di Intesa Sanpaolo (.xlsx).
 
 - I dati restano **solo sul dispositivo** (IndexedDB del browser): nessun server.
-- Per passare i dati tra PC e telefono: Impostazioni → Backup (file `.json`, es. su OneDrive).
+- Per passare i dati tra PC e telefono: Impostazioni → Backup (file `.json`, es. su Google Drive).
 - Installabile su Android e PC da Chrome/Edge ("Installa app" / "Aggiungi a schermata Home").
 
 ## Sviluppo
