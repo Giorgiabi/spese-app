@@ -42,14 +42,17 @@ export async function vistaDashboard(el, q) {
   const daClassificare = reali.filter((m) => m.cat === 'Da classificare').length;
   const etichetta = interoAnno ? `del ${anno}` : `di ${nomeMese(periodo)}`;
 
-  const quote = {
-    necessita: (t.necessita / t.entrate) * 100,
-    desideri: ((t.desideri + t.crescita) / t.entrate) * 100,
-    risparmio: (t.risparmiato / t.entrate) * 100,
-  };
+  // Quote 50/30/20 sulle entrate (null se nel periodo non ci sono entrate)
+  const quoteDi = (x) => (x.entrate > 0 ? {
+    necessita: (x.necessita / x.entrate) * 100,
+    desideri: ((x.desideri + x.crescita) / x.entrate) * 100,
+    risparmio: (x.risparmiato / x.entrate) * 100,
+  } : null);
+  const rispetta = (chiave, v) => (chiave === 'risparmio' ? v >= OBIETTIVI[chiave] : v <= OBIETTIVI[chiave]);
+  const quote = quoteDi(t) || {};
   const barra = (chiave, nome, colore) => {
     const v = quote[chiave];
-    const ok = chiave === 'risparmio' ? v >= OBIETTIVI[chiave] : v <= OBIETTIVI[chiave];
+    const ok = rispetta(chiave, v);
     return `
       <div class="obiettivo">
         <div class="riga-obiettivo"><span>${nome}</span>
@@ -61,6 +64,16 @@ export async function vistaDashboard(el, q) {
       </div>`;
   };
   const delta = prec ? t.uscite - prec.uscite : null;
+
+  // 50/30/20 mese per mese dell'anno selezionato
+  const mesiAnno = MESI_BREVI.map((_, i) => `${anno}-${String(i + 1).padStart(2, '0')}`);
+  const quoteMesi = mesiAnno.map((k) => (mesi.includes(k) ? quoteDi(totali(nelPeriodo(k))) : null));
+  const SERIE_QUOTE = [
+    ['necessita', 'Necessità', MACRO.necessita.colore],
+    ['desideri', 'Desideri e crescita', MACRO.desideri.colore],
+    ['risparmio', 'Risparmio', MACRO.risparmio.colore],
+  ];
+  const cellaQuota = (q, chiave) => (q ? `<span class="${rispetta(chiave, q[chiave]) ? 'ok' : 'ko'}">${perc(q[chiave])}</span>` : '<span class="nota">—</span>');
 
   el.innerHTML = `
     <div class="testata">
@@ -94,6 +107,19 @@ export async function vistaDashboard(el, q) {
       ${barra('necessita', 'Necessità', MACRO.necessita.colore)}
       ${barra('desideri', 'Desideri e crescita personale', MACRO.desideri.colore)}
       ${barra('risparmio', 'Risparmio e investimenti', MACRO.risparmio.colore)}
+    </section>
+
+    <section>
+      <h3>50/30/20 mese per mese · ${anno}</h3>
+      <p class="nota">Le linee tratteggiate sono gli obiettivi (50%, 30%, 20%). Tocca un mese per aprirlo.</p>
+      <div class="legenda">${SERIE_QUOTE.map(([k, n, c]) => `<span><i style="background:${c}"></i>${n} (obiettivo ${OBIETTIVI[k]}%)</span>`).join('')}</div>
+      <div class="grafico" style="height:240px"><canvas id="g-quote" role="img" aria-label="Regola 50/30/20 mese per mese"></canvas></div>
+      <table class="tabella tabella-quote">
+        <tr><td></td>${SERIE_QUOTE.map(([, n]) => `<td class="num"><small>${n}</small></td>`).join('')}</tr>
+        ${mesiAnno.map((k, i) => quoteMesi[i] ? `
+          <tr class="${k === periodo ? 'selezionato' : ''}"><td><a href="#/dashboard?periodo=${k}${cassa ? '&vista=cassa' : ''}">${nomeMese(k).split(' ')[0]}</a></td>
+            ${SERIE_QUOTE.map(([c]) => `<td class="num">${cellaQuota(quoteMesi[i], c)}</td>`).join('')}</tr>` : '').join('')}
+      </table>
     </section>
 
     <section>
@@ -181,6 +207,42 @@ export async function vistaDashboard(el, q) {
         },
       },
       onClick: (_, punti) => { if (punti[0]) location.hash = `#/movimenti?mese=${periodo}&categoria=${encodeURIComponent(cat[punti[0].index][0])}`; },
+    },
+  }));
+
+  // 50/30/20 mese per mese: una linea per quota + obiettivo tratteggiato dello stesso colore
+  grafici.push(new Chart(el.querySelector('#g-quote'), {
+    type: 'line',
+    data: {
+      labels: MESI_BREVI,
+      datasets: [
+        ...SERIE_QUOTE.map(([k, n, c]) => ({
+          label: n,
+          data: quoteMesi.map((q) => (q ? Math.round(q[k]) : null)),
+          borderColor: c, backgroundColor: c, borderWidth: 2, pointRadius: 4, pointHoverRadius: 6, spanGaps: false,
+        })),
+        ...SERIE_QUOTE.map(([k, n, c]) => ({
+          label: `Obiettivo ${n.toLowerCase()}`,
+          data: MESI_BREVI.map(() => OBIETTIVI[k]),
+          borderColor: c + '99', borderWidth: 1, borderDash: [5, 5], pointRadius: 0, pointHoverRadius: 0,
+        })),
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: assi.x,
+        y: { grid: { color: griglia }, ticks: { color: tick, callback: (v) => `${v}%` }, suggestedMin: 0, suggestedMax: 70 },
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          filter: (x) => !x.dataset.label.startsWith('Obiettivo') && x.raw != null,
+          callbacks: { label: (x) => `${x.dataset.label}: ${x.raw}%` },
+        },
+      },
+      onClick: (_, punti) => { if (punti[0] && quoteMesi[punti[0].index]) vai(mesiAnno[punti[0].index]); },
     },
   }));
 }
