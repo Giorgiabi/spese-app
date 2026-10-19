@@ -42,7 +42,7 @@ export async function vistaInvestimenti(el) {
       <section class="evidenza">
         <h3>Versamenti da collegare</h3>
         <p class="nota">Questi movimenti sono investimenti ma non appartengono ancora a nessuno strumento.</p>
-        <table class="tabella">
+        <table class="tabella impilata">
           ${liberi.map((m) => `
             <tr><td>${dataBreve(m.data)} · ${esc(m.operazione)}<small>${esc(m.dettagli)}</small></td>
             <td class="num">${eur(-m.importo)}</td>

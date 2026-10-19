@@ -49,7 +49,9 @@ nav a {
 }
 nav a.attivo { background: var(--tenue); color: var(--testo); font-weight: 600; }
 
-main { max-width: 860px; margin: 0 auto; padding: 16px; }
+main { max-width: 860px; margin: 0 auto; padding: 16px; overflow-x: clip; }
+select { max-width: 100%; }
+canvas { max-width: 100%; }
 section {
   background: var(--carta); border: 1px solid var(--bordo); border-radius: var(--raggio);
   padding: 16px 18px; margin: 14px 0;
@@ -160,13 +162,34 @@ nav .breve { display: none; }
 .toast.proposta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; background: var(--carta); color: var(--testo); border: 1px solid var(--bordo); box-shadow: 0 6px 24px rgba(0,0,0,.15); }
 .toast.proposta input { min-width: 120px; }
 
-/* Telefono: menu in basso come un'app */
+/* Telefono: menu in basso sempre visibile, come un'app */
 @media (max-width: 640px) {
+  body { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
   .barra { padding: 10px 16px; }
   nav {
-    position: fixed; bottom: 0; left: 0; right: 0; background: var(--carta);
+    position: fixed; bottom: 0; left: 0; right: 0; width: 100vw; z-index: 30; background: var(--carta);
     border-top: 1px solid var(--bordo); justify-content: space-around; padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
   }
+  nav a { flex: 1; text-align: center; }
+
+  /* Tabelle "impilate": ogni riga diventa una scheda */
+  .tabella.impilata tr { display: block; padding: 10px 0; border-top: 1px solid var(--bordo); }
+  .tabella.impilata tr:first-child { border-top: 0; }
+  .tabella.impilata td { display: block; border: 0; padding: 2px 0; text-align: left; white-space: normal; }
+  .tabella.impilata td.num { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 4px; }
+  .tabella.impilata td.num > select, .tabella.impilata td.num > .btn { margin: 0; flex: 1 1 140px; }
+  .tabella td.num:has(.btn, select) { white-space: normal; }
+
+  .testata > select, .testata > input { flex: 1 1 140px; }
+  .interruttore { flex: 1 1 100%; }
+  .interruttore button { flex: 1; }
+  .azioni-mov { flex: 1; min-width: 0; justify-content: flex-end; }
+  .sel-cat { flex: 1; min-width: 0; max-width: none; }
+  .testa-strumento { flex-direction: column; gap: 4px; }
+  .grande { text-align: left; }
+  .riga-form > * { flex: 1 1 140px; max-width: none !important; }
+  .riga-form input { min-width: 0; }
+  .riga-form > button.btn, .riga-form > label.btn { flex: 1 1 100%; justify-content: center; }
   nav a { font-size: 12px; padding: 8px 4px; }
   nav .lungo { display: none; }
   nav .breve { display: inline; }

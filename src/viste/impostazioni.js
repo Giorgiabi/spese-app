@@ -21,7 +21,7 @@ export async function vistaImpostazioni(el) {
       <h2>Categorie</h2>
       <p class="nota">Ogni categoria appartiene a una macro: è così che la dashboard calcola la regola 50/30/20.
         "Spalma" divide le spese di quella categoria nel tempo (vista competenza): sull'anno solare, oppure su 1–5 anni dal mese del pagamento.</p>
-      <table class="tabella">
+      <table class="tabella impilata">
         ${nomi.map((c) => `
           <tr><td>${esc(c)}<small>${conteggi[c] || 0} movimenti</small></td>
           <td class="num">
@@ -39,7 +39,7 @@ export async function vistaImpostazioni(el) {
     <section>
       <h2>Regole automatiche</h2>
       <p class="nota">Se l'operazione o i dettagli contengono il testo, il movimento prende quella categoria. Valgono anche per i movimenti già importati.</p>
-      <table class="tabella">
+      <table class="tabella impilata">
         ${regole.map((r) => `<tr><td>"${esc(r.testo)}"${r.importo != null ? ` da ${eur(r.importo)}` : ''}${r.solo ? ` (solo ${r.solo})` : ''} → ${esc(r.categoria)}
             <small>${movimenti.filter((m) => regolaVale(r, m)).length} movimenti</small></td>
           <td class="num"><button class="btn" data-elimina="${r.id}">Elimina</button></td></tr>`).join('') || '<tr><td class="nota">Nessuna regola per ora.</td></tr>'}
