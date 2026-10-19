@@ -1,0 +1,8 @@
+node_modules/
+dist/
+dati-test/
+# dati e regole personali: mai pubblicati
+src/personale.js
+*.xlsx
+*.xlsm
+*.json.bak
